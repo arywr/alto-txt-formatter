@@ -6,7 +6,7 @@ const processLineByLine = async () => {
   let realRows = [];
   let convertedData = [];
 
-  const fileStream = fs.createReadStream("sample-alto2.rpt");
+  const fileStream = fs.createReadStream("sample-alto-0529.rpt");
 
   const rl = readline.createInterface({
     input: fileStream,
@@ -63,11 +63,12 @@ const processLineByLine = async () => {
       return list.map((value) => value.trim());
     });
 
-    let object = {};
     let data = [];
 
     generatedRows.forEach((item, row_index) => {
-      if (column[row_index] !== undefined && item[row_index] !== undefined) {
+      let object = {};
+
+      if (item != null) {
         object["TERMINAL"] = item[0];
         object["REFFNO ALTO"] = `${item[1].split("/")[0].replace(" ", "")}${
           item[3]
@@ -85,13 +86,30 @@ const processLineByLine = async () => {
         object["INTERCHANGE FEE TELKOM"] = Number(item[10].replace(/,/g, ""));
         object["ISSUER"] = 6500;
         object["Net Off Beban"] = 6500 - Number(item[10].replace(/,/g, ""));
-      }
 
-      data.push(object);
+        data.push(object);
+      }
     });
 
     convertedData = data;
-    console.log("TOTAL TRANSACTIONS READED", convertedData.length);
+
+    const grandTotal = convertedData.reduce(function (acc, obj) {
+      return Number(acc) + Number(obj["AMOUNT"]);
+    }, 0);
+
+    const grandInterchange = convertedData.reduce(function (acc, obj) {
+      return Number(acc) + Number(obj["Net Off Beban"]);
+    }, 0);
+
+    console.log(
+      `TOTAL TRANSACTION READED : ${convertedData.length} Transactions`
+    );
+    console.log(
+      `TOTAL AMOUNT : ${new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+      }).format(grandTotal + grandInterchange)}`
+    );
   });
 };
 
