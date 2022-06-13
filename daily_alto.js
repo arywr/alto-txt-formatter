@@ -1,12 +1,26 @@
 const fs = require("fs");
 const readline = require("readline");
+const json2xls = require("p3x-json2xls-worker-thread");
+const moment = require("moment");
+
+const TODAY_DATE = moment().subtract(1, "days").format("YY-MM-DD");
+const DIR_PATHNAME = "download/";
+const DIR_SOURCENAME = "upload/";
+
+const uploaded_name = `${TODAY_DATE}_TELKOM-ALTO_Transfer-Acquirer-Transaction.rpt`; // Nama file yang akan dibaca, bisa di replace!
+
+const source = `${DIR_SOURCENAME}${uploaded_name}`;
+
+const download = `${DIR_PATHNAME}${moment()
+  .subtract(1, "days")
+  .format("YYMMDD")}-ALTO.xlsx`;
 
 const processLineByLine = async () => {
   let store = [];
   let realRows = [];
   let convertedData = [];
 
-  const fileStream = fs.createReadStream("sample-alto-0529.rpt");
+  const fileStream = fs.createReadStream(source);
 
   const rl = readline.createInterface({
     input: fileStream,
@@ -17,7 +31,7 @@ const processLineByLine = async () => {
     store.push(line);
   });
 
-  rl.on("close", function () {
+  rl.on("close", async function () {
     let hasColumn = false;
     let column = null;
 
@@ -105,11 +119,20 @@ const processLineByLine = async () => {
       `TOTAL TRANSACTION READED : ${convertedData.length} Transactions`
     );
     console.log(
-      `TOTAL AMOUNT : ${new Intl.NumberFormat("id-ID", {
+      `TOTAL AMOUNT READED : ${new Intl.NumberFormat("id-ID", {
         style: "currency",
         currency: "IDR",
       }).format(grandTotal + grandInterchange)}`
     );
+
+    const xlsBinary = await json2xls(convertedData);
+
+    await fs.writeFileSync(download, xlsBinary, "binary", (err) => {
+      if (err) {
+        console.log("writeFileSync error :", err);
+      }
+      console.log("The file has been saved!");
+    });
   });
 };
 
