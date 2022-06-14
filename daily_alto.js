@@ -130,7 +130,7 @@ const processLineByLine = async (day) => {
             object["NOMINAL SETTLEMENT"] =
               Number(item[9].replace(/,/g, "")) +
               6500 -
-              (6500 - Number(item[10].replace(/,/g, "")));
+              Number(item[10].replace(/,/g, ""));
 
             object["PERIODE SETTLEMENT"] = moment()
               .subtract(day, "days")
