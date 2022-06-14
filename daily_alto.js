@@ -19,19 +19,6 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-rl.question("H- berapa transaksi yang mau dibaca: ", function (day) {
-  console.log("\n");
-  if (day) {
-    DEFAULT_DAY_READ = day;
-
-    for (let index = DEFAULT_DAY_READ; index >= 1; index--) {
-      processLineByLine(index);
-    }
-  }
-
-  rl.close();
-});
-
 const processLineByLine = async (day) => {
   const TODAY_DATE = moment().subtract(day, "days").format("YY-MM-DD");
 
@@ -177,3 +164,22 @@ const processLineByLine = async (day) => {
     console.log(error);
   }
 };
+
+const Main = () => {
+  rl.question("H- berapa transaksi yang mau dibaca: ", function (day) {
+    console.log("\n");
+    if (day) {
+      DEFAULT_DAY_READ = day;
+
+      for (let index = DEFAULT_DAY_READ; index >= 1; index--) {
+        processLineByLine(index);
+      }
+    } else {
+      console.log("TRY AGAIN!! \n");
+    }
+
+    rl.close();
+  });
+};
+
+Main();
