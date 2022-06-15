@@ -101,10 +101,15 @@ const processLineByLine = async (day) => {
             object["REFFNO ALTO"] = `${item[1].split("/")[0].replace(" ", "")}${
               item[3]
             }`;
+            object["TRACE-ACQ"] = item[1].split("/")[0].replace(" ", "");
+            object["TRACE-ACQ FIX"] = item[1].split("/")[0].replace(" ", "");
             object["CARD-SWT"] = item[1].split("/")[1]?.trim();
             object["ACCOUNT NUMBER"] = item[2];
             object["RCPT NUMB"] = item[3];
-            object["RCPT DATE"] = item[4];
+            object["RCPT NUMB FIX"] = item[3];
+            object["RCPT DATE"] = moment()
+              .subtract(day, "days")
+              .format("YYYY-MM-DD");
             object["RCPT TIME"] = item[5];
             object["TRANS TYPE"] = item[6].split(" ")[0];
             object["SA"] = item[6].split(" ")[1];
@@ -125,7 +130,7 @@ const processLineByLine = async (day) => {
                 ""
               );
             } else {
-              object["BANK NAME"] = "";
+              object["BANK NAME"] = "-";
             }
             object["NOMINAL SETTLEMENT"] =
               Number(item[9].replace(/,/g, "")) +
@@ -134,8 +139,10 @@ const processLineByLine = async (day) => {
 
             object["PERIODE SETTLEMENT"] = moment()
               .subtract(day, "days")
-              .add(1, "days")
-              .format("DD-MMM-YY");
+              .format("YYYY-MM-DD");
+
+            object["STATUS REKON"] = "";
+            object["STATUS UPDATE"] = "";
 
             data.push(object);
           }
