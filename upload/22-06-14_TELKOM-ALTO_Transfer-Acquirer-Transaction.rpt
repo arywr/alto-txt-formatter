@@ -23,13 +23,3 @@
             "reconProgressId": "4c9f2213-186d-4146-8b27-2f60359fe519",
             "__v": 0
         },
-
-
-
-IDR 280.762.337,-
-
-285
-
-61aebce9c2e13c0013ce2db7
-
-{{base_url}}/api/v1/reconciliation/merchant?between-TrxDate=2022-06-14|2022-06-15&filter-MitraOriginId=60d03b7506c6700011ddeb52&filter-totalSettled=0|5000000
