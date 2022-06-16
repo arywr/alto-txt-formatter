@@ -132,14 +132,14 @@ const processLineByLine = async (day) => {
             } else {
               object["BANK NAME"] = "-";
             }
+            object["PERIODE SETTLEMENT"] = moment()
+              .subtract(day, "days")
+              .format("YYYY-MM-DD");
+
             object["NOMINAL SETTLEMENT"] =
               Number(item[9].replace(/,/g, "")) +
               6500 -
               Number(item[10].replace(/,/g, ""));
-
-            object["PERIODE SETTLEMENT"] = moment()
-              .subtract(day, "days")
-              .format("YYYY-MM-DD");
 
             object["STATUS REKON"] = "";
             object["STATUS UPDATE"] = "";
