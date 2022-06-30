@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "moment": "^2.29.3",
-    "p3x-json2xls-worker-thread": "^2022.4.128"
+    "nodemailer": "^6.7.5",
+    "p3x-json2xls-worker-thread": "^2022.4.128",
+    "ssh2-sftp-client": "^9.0.1"
   }
 }

@@ -2,17 +2,24 @@ const fs = require("fs");
 const readline = require("readline");
 const json2xls = require("p3x-json2xls-worker-thread");
 const moment = require("moment");
+const nodemailer = require("nodemailer");
+
+var mailOptions = {
+  from: "arya.wahyu502@gmail.com",
+  to: "arya.wahyu502@gmail.com",
+  cc: "destinurfitria24@gmail.com",
+};
 
 let DEFAULT_DAY_READ = 1;
+let transactions = [];
+let transporter = null;
 
-// const TODAY_DATE = moment().subtract(1, "days").format("YY-MM-DD");
 const DIR_PATHNAME = "download/";
 const DIR_SOURCENAME = "upload/";
 
-// const UPLOAD_FILENAME = `${TODAY_DATE}_TELKOM-ALTO_Transfer-Acquirer-Transaction.rpt`;
-// const DOWNLOAD_FILENAME = `${DIR_PATHNAME}${moment().subtract(1, "days").format("YYMMDD")}-ALTO_FORMATTED.xlsx`;
-
-// const source = `${DIR_SOURCENAME}${UPLOAD_FILE_NAME}`;
+const DOWNLOAD_FILENAME = `${DIR_PATHNAME}${moment()
+  .subtract(1, "days")
+  .format("YYMMDD")}-ALTO_FORMATTED.xlsx`;
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -22,9 +29,6 @@ const rl = readline.createInterface({
 const processLineByLine = async (day) => {
   const TODAY_DATE = moment().subtract(day, "days").format("YY-MM-DD");
 
-  const DOWNLOAD_FILENAME = `${DIR_PATHNAME}${moment()
-    .subtract(day, "days")
-    .format("YYMMDD")}-ALTO_FORMATTED.xlsx`;
   const UPLOAD_FILENAME = `${TODAY_DATE}_TELKOM-ALTO_Transfer-Acquirer-Transaction.rpt`;
   const SOURCE_UPLOAD = `${DIR_SOURCENAME}${UPLOAD_FILENAME}`;
 
@@ -149,42 +153,43 @@ const processLineByLine = async (day) => {
         });
 
         convertedData = data;
-
-        const xlsBinary = await json2xls(convertedData);
-
-        await fs.writeFileSync(
-          DOWNLOAD_FILENAME,
-          xlsBinary,
-          "binary",
-          (err) => {
-            if (err) {
-              console.log("writeFileSync error :", err);
-            }
-            console.log("The file has been saved!");
-          }
-        );
+        transactions = [...transactions, ...data];
       });
     } else {
       console.log(`Warning!! File tidak ditemukan: ${UPLOAD_FILENAME} \n \n`);
     }
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
+};
+
+const exportFormattedFile = async () => {
+  const FILE_GENERATED = await json2xls(transactions);
+
+  await fs.writeFileSync(DOWNLOAD_FILENAME, FILE_GENERATED, "binary", (err) => {
+    if (err) {
+      console.log("writeFileSync error :", err);
+    }
+    console.log("The file has been saved!");
+  });
 };
 
 const Main = () => {
-  rl.question("H- berapa transaksi yang mau dibaca: ", function (day) {
+  rl.question("H- berapa transaksi yang mau dibaca: ", async function (day) {
     console.log("\n");
-    if (day) {
+    if (!isNaN(day)) {
       DEFAULT_DAY_READ = day;
 
       for (let index = DEFAULT_DAY_READ; index >= 1; index--) {
-        processLineByLine(index);
+        await processLineByLine(index);
       }
+
+      await setTimeout(() => {
+        exportFormattedFile();
+      }, 500);
     } else {
       console.log("TRY AGAIN!! \n");
-    }
 
+      if (isNaN(day)) console.log("HINT: Please input number");
+    }
     rl.close();
   });
 };
